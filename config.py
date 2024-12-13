@@ -4,8 +4,10 @@ import os
 # Network Configuration
 PROXY_HOST = '0.0.0.0'  # Bind to all interfaces
 PROXY_PORT = int(os.environ.get('PORT', 8333))  # Use Render's PORT env variable or fallback to 8333
-POOL_HOST = '127.0.0.1'
-POOL_PORT = 8334
+
+# ViaBTC Pool Configuration (using Pool 1 from the example)
+POOL_HOST = 'btc.viabtc.io'
+POOL_PORT = 3333  # Using the first pool port from the configuration
 
 def modify_data(data):
     """Function to modify data (changing hashrate from 1000 to 2000)"""
@@ -20,4 +22,5 @@ def modify_data(data):
         # Convert back to bytes
         return json.dumps(json_data).encode()
     except:
-        return data  # Return original data if modification fails
+        # For Stratum protocol messages that aren't JSON, return original data
+        return data
