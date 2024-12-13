@@ -1,16 +1,13 @@
-import socket
 import json
 import time
+import requests
 from config import PROXY_HOST, PROXY_PORT
 
 def start_miner():
-    client_socket = None
+    # Construct the proxy URL
+    proxy_url = f"http://{PROXY_HOST}:{PROXY_PORT}"
+    
     try:
-        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_socket.connect((PROXY_HOST, PROXY_PORT))
-        print(f"Connected to proxy at {PROXY_HOST}:{PROXY_PORT}")
-        
-        # Simulate mining by sending periodic updates
         while True:
             # Simulate mining data
             mining_data = {
@@ -20,22 +17,24 @@ def start_miner():
                 'timestamp': int(time.time())
             }
             
-            # Send mining data
-            client_socket.sendall(json.dumps(mining_data).encode())
+            # Send mining data via HTTP POST
+            try:
+                response = requests.post(proxy_url, json=mining_data)
+                print(f"Sent data to proxy: {mining_data}")
+                
+                if response.status_code == 200:
+                    print(f"Received response: {response.text}")
+                else:
+                    print(f"Error from proxy: {response.status_code} - {response.text}")
             
-            # Receive response
-            response = client_socket.recv(4096)
-            if response:
-                print(f"Received response: {response.decode()}")
+            except Exception as e:
+                print(f"Error sending data to proxy: {e}")
             
             # Wait before sending next update
             time.sleep(5)
-            
+
     except Exception as e:
-        print(f"Error in mock miner: {e}")
-    finally:
-        if client_socket:
-            client_socket.close()
+        print(f"Error in miner: {e}")
 
 if __name__ == "__main__":
     start_miner()
